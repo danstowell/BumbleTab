@@ -17,8 +17,8 @@ public class BSoundManager {
 	// hardwired node IDs, bus IDs, buffer IDs, for scsynth
     protected static final int recNode = 1998;
     protected static final int playNode = 1999;
-    protected static final int targetBus = 0;
-    protected static final int inpitchBus = 1;
+    protected static final int targetBus = 20;
+    protected static final int inpitchBus = 21;
     protected static final int recBuf = 0;
     
     public BSoundManager(SCAudio s) {
@@ -29,7 +29,7 @@ public class BSoundManager {
     protected void initialiseSCforInput() {
     	//TODO: bus-set just for test
     	OscMessage busSetMsg = new OscMessage( new Object[] {
-        		"c_set", targetBus, 2, inpitchBus, 1
+        		"c_set", targetBus, 74, inpitchBus, 77
         	});
     	superCollider.sendMessage( busSetMsg );
 
@@ -64,8 +64,12 @@ public class BSoundManager {
     }
 
     protected void updateFromBusses(GtrTabView gtv){
+    	int targetNote, usrNote;
+    	
+    	// STEP 1: get target note
+    	
     	OscMessage busGetMsg = new OscMessage( new Object[] {
-        		"c_get",targetBus, inpitchBus
+        		"c_get",targetBus
         	});
     	Log.d(TAG,busGetMsg.toString());
     	
@@ -90,8 +94,10 @@ public class BSoundManager {
 		if (!firstToken.equals("/c_set")) {
 			Log.e(TAG, "Bumble failed to receive /c_set - instead got " + firstToken);
 		}else{
-			int targetNote = (int) ((Float)msgFromServer.get(2)).floatValue();
-			int usrNote = (int) ((Float)msgFromServer.get(4)).floatValue();
+			targetNote = (int) ((Float)msgFromServer.get(2)).floatValue();
+			//usrNote = (int) ((Float)msgFromServer.get(4)).floatValue();
+			
+			Log.d(TAG, "Bumble RECEIVED pos from SC: " + targetNote + "; " + msgFromServer);
 			
 			// Convert midinote to guitar fret position
 			// TODO: surely can be eleganter!
@@ -121,6 +127,7 @@ public class BSoundManager {
 				gtv.whichFret=targetNote - 76;
 				break;
 			}
+			/*
 			switch(usrNote){
 			case 52: case 53: case 54: case 55: case 56:
 				gtv.usrStrg=0;
@@ -147,6 +154,7 @@ public class BSoundManager {
 				gtv.usrFret=targetNote - 76;
 				break;
 			}
+			*/
 			gtv.postInvalidate();
 		}
     }
