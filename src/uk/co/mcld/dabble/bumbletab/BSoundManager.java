@@ -95,7 +95,6 @@ public class BSoundManager {
 			Log.e(TAG, "Bumble failed to receive /c_set - instead got " + firstToken);
 		}else{
 			targetNote = (int) ((Float)msgFromServer.get(2)).floatValue();
-			//usrNote = (int) ((Float)msgFromServer.get(4)).floatValue();
 			
 			Log.d(TAG, "Bumble RECEIVED pos from SC: " + targetNote + "; " + msgFromServer);
 			
@@ -103,60 +102,97 @@ public class BSoundManager {
 			// TODO: surely can be eleganter!
 			switch(targetNote){
 			case 52: case 53: case 54: case 55: case 56:
-				gtv.whichStrg=0;
+				gtv.whichStrg=5;
 				gtv.whichFret=targetNote - 52;
 				break;
 			case 57: case 58: case 59: case 60: case 61:
-				gtv.whichStrg=1;
+				gtv.whichStrg=4;
 				gtv.whichFret=targetNote - 57;
 				break;
 			case 62: case 63: case 64: case 65: case 66:
-				gtv.whichStrg=2;
+				gtv.whichStrg=3;
 				gtv.whichFret=targetNote - 62;
 				break;
 			case 67: case 68: case 69: case 70:
-				gtv.whichStrg=3;
+				gtv.whichStrg=2;
 				gtv.whichFret=targetNote - 67;
 				break;
 			case 71: case 72: case 73: case 74: case 75:
-				gtv.whichStrg=4;
+				gtv.whichStrg=1;
 				gtv.whichFret=targetNote - 71;
 				break;
 			default:
-				gtv.whichStrg=5;
+				gtv.whichStrg=0;
 				gtv.whichFret=targetNote - 76;
 				break;
 			}
-			/*
+		}
+		
+		// STEP 2 the user value
+    	
+    	busGetMsg = new OscMessage( new Object[] {
+        		"c_get",inpitchBus
+        	});
+    	Log.d(TAG,busGetMsg.toString());
+    	
+    	while (SCAudio.hasMessages()) SCAudio.getMessage(); // clean out mailbox
+    	superCollider.sendMessage( busGetMsg );
+
+    	// Wait on a positive response from SCAudio
+    	msgFromServer=null;
+    	triesToFail = 500;
+		while (msgFromServer==null && --triesToFail>0) {
+    		if (SCAudio.hasMessages()) msgFromServer = SCAudio.getMessage();
+    		try {
+    			Thread.sleep(5);
+    		} catch (InterruptedException e) {
+    			break;
+    		}
+		}
+		if (msgFromServer==null) {
+			//return -1;
+		}
+		firstToken = msgFromServer.get(0).toString();
+		if (!firstToken.equals("/c_set")) {
+			Log.e(TAG, "Bumble failed to receive /c_set - instead got " + firstToken);
+		}else{
+			usrNote = (int) ((Float)msgFromServer.get(2)).floatValue();
+			
+			Log.d(TAG, "Bumble RECEIVED pos from SC: " + usrNote + "; " + msgFromServer);
+			
+			// Convert midinote to guitar fret position
+			// TODO: surely can be eleganter!
 			switch(usrNote){
 			case 52: case 53: case 54: case 55: case 56:
-				gtv.usrStrg=0;
-				gtv.usrFret=targetNote - 52;
+				gtv.usrStrg=5;
+				gtv.usrFret=usrNote - 52;
 				break;
 			case 57: case 58: case 59: case 60: case 61:
-				gtv.usrStrg=1;
-				gtv.usrFret=targetNote - 57;
+				gtv.usrStrg=4;
+				gtv.usrFret=usrNote - 57;
 				break;
 			case 62: case 63: case 64: case 65: case 66:
-				gtv.usrStrg=2;
-				gtv.usrFret=targetNote - 62;
+				gtv.usrStrg=3;
+				gtv.usrFret=usrNote - 62;
 				break;
 			case 67: case 68: case 69: case 70:
-				gtv.usrStrg=3;
-				gtv.usrFret=targetNote - 67;
+				gtv.usrStrg=2;
+				gtv.usrFret=usrNote - 67;
 				break;
 			case 71: case 72: case 73: case 74: case 75:
-				gtv.usrStrg=4;
-				gtv.usrFret=targetNote - 71;
+				gtv.usrStrg=1;
+				gtv.usrFret=usrNote - 71;
 				break;
 			default:
-				gtv.usrStrg=5;
-				gtv.usrFret=targetNote - 76;
+				gtv.usrStrg=0;
+				gtv.usrFret=usrNote - 76;
 				break;
 			}
-			*/
-			gtv.postInvalidate();
 		}
+		
+
+		// STEP 3 update gui
+		gtv.postInvalidate();
     }
     
 }

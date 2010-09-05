@@ -2,12 +2,15 @@ package uk.co.mcld.dabble.bumbletab;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
+
 import java.util.Random;
 
+import net.sf.supercollider.android.OscMessage;
 import net.sf.supercollider.android.SCAudio;
 
 public class BumbleTab extends Activity {
-	
+	private static final String TAG = "BumbleTab";
 	private GtrTabView gtrTabView;
 	private TabUpdateThread tabUpdateThread;
 	
@@ -68,5 +71,22 @@ public class BumbleTab extends Activity {
     	    }
     	}
     }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+		superCollider.sendMessage (OscMessage.quitMessage());
+
+		while (!superCollider.isEnded()) {
+			try {
+				Thread.sleep(50L);
+			} catch (InterruptedException err) {
+				Log.e(TAG,"An interruption happened while ScanVox was waiting for SuperCollider to exit.");
+				err.printStackTrace();
+				break;
+			}
+		}
+    }
+    
 
 }
