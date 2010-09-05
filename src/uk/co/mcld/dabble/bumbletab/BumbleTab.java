@@ -30,7 +30,7 @@ public class BumbleTab extends Activity {
     		Random generator = new Random();
     		for(int i=0; i < 100; i++){
     			try {
-    				Thread.sleep(3000L);
+    				Thread.sleep(100L);
     			} catch (InterruptedException e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
