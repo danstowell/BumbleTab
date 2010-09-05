@@ -23,10 +23,16 @@ public class BSoundManager {
     
     public BSoundManager(SCAudio s) {
     	superCollider = s;
-    	initialiseSCforInput();
+    	//initialiseSCforInput();
     }
     
-    private void initialiseSCforInput() {
+    protected void initialiseSCforInput() {
+    	//TODO: bus-set just for test
+    	OscMessage busSetMsg = new OscMessage( new Object[] {
+        		"c_set", targetBus, 2, inpitchBus, 1
+        	});
+    	superCollider.sendMessage( busSetMsg );
+
     	OscMessage bufferAllocMsg = new OscMessage( new Object[] {
         		"b_alloc",recBuf,bufferSize
         	});
@@ -37,7 +43,7 @@ public class BSoundManager {
 
     	// Wait on a positive response from SCAudio
     	OscMessage msgFromServer=null;
-    	int triesToFail = 500;
+    	int triesToFail = 1500;
 		while (msgFromServer==null && --triesToFail>0) {
     		if (SCAudio.hasMessages()) msgFromServer = SCAudio.getMessage();
     		try {
@@ -57,6 +63,92 @@ public class BSoundManager {
     			"s_new","bumbletab_rec", recNode, 0, 1, "targetBus", targetBus, "inpitchBus", inpitchBus, "recBuf", recBuf}));
     }
 
-    
+    protected void updateFromBusses(GtrTabView gtv){
+    	OscMessage busGetMsg = new OscMessage( new Object[] {
+        		"c_get",targetBus, inpitchBus
+        	});
+    	Log.d(TAG,busGetMsg.toString());
+    	
+    	while (SCAudio.hasMessages()) SCAudio.getMessage(); // clean out mailbox
+    	superCollider.sendMessage( busGetMsg );
+
+    	// Wait on a positive response from SCAudio
+    	OscMessage msgFromServer=null;
+    	int triesToFail = 500;
+		while (msgFromServer==null && --triesToFail>0) {
+    		if (SCAudio.hasMessages()) msgFromServer = SCAudio.getMessage();
+    		try {
+    			Thread.sleep(5);
+    		} catch (InterruptedException e) {
+    			break;
+    		}
+		}
+		if (msgFromServer==null) {
+			//return -1;
+		}
+		String firstToken = msgFromServer.get(0).toString();
+		if (!firstToken.equals("/c_set")) {
+			Log.e(TAG, "Bumble failed to receive /c_set - instead got " + firstToken);
+		}else{
+			int targetNote = (int) ((Float)msgFromServer.get(2)).floatValue();
+			int usrNote = (int) ((Float)msgFromServer.get(4)).floatValue();
+			
+			// Convert midinote to guitar fret position
+			// TODO: surely can be eleganter!
+			switch(targetNote){
+			case 52: case 53: case 54: case 55: case 56:
+				gtv.whichStrg=0;
+				gtv.whichFret=targetNote - 52;
+				break;
+			case 57: case 58: case 59: case 60: case 61:
+				gtv.whichStrg=1;
+				gtv.whichFret=targetNote - 57;
+				break;
+			case 62: case 63: case 64: case 65: case 66:
+				gtv.whichStrg=2;
+				gtv.whichFret=targetNote - 62;
+				break;
+			case 67: case 68: case 69: case 70:
+				gtv.whichStrg=3;
+				gtv.whichFret=targetNote - 67;
+				break;
+			case 71: case 72: case 73: case 74: case 75:
+				gtv.whichStrg=4;
+				gtv.whichFret=targetNote - 71;
+				break;
+			default:
+				gtv.whichStrg=5;
+				gtv.whichFret=targetNote - 76;
+				break;
+			}
+			switch(usrNote){
+			case 52: case 53: case 54: case 55: case 56:
+				gtv.usrStrg=0;
+				gtv.usrFret=targetNote - 52;
+				break;
+			case 57: case 58: case 59: case 60: case 61:
+				gtv.usrStrg=1;
+				gtv.usrFret=targetNote - 57;
+				break;
+			case 62: case 63: case 64: case 65: case 66:
+				gtv.usrStrg=2;
+				gtv.usrFret=targetNote - 62;
+				break;
+			case 67: case 68: case 69: case 70:
+				gtv.usrStrg=3;
+				gtv.usrFret=targetNote - 67;
+				break;
+			case 71: case 72: case 73: case 74: case 75:
+				gtv.usrStrg=4;
+				gtv.usrFret=targetNote - 71;
+				break;
+			default:
+				gtv.usrStrg=5;
+				gtv.usrFret=targetNote - 76;
+				break;
+			}
+			gtv.postInvalidate();
+		}
+    }
     
 }
