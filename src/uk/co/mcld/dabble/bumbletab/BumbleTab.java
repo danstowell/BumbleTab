@@ -17,6 +17,7 @@ public class BumbleTab extends Activity {
 		gtrTabView.backgroundPaint.setColor(getResources().getColor(android.R.color.background_light));
 		gtrTabView.rowDivisionPaint.setColor(getResources().getColor(android.R.color.background_dark));
 		gtrTabView.timeDivisionPaint.setColor(getResources().getColor(android.R.color.primary_text_light));
+		gtrTabView.usrCircPaint.setColor(getResources().getColor(android.R.color.primary_text_light));
         
     }
 }
