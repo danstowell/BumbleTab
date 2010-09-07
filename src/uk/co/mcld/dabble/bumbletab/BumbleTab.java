@@ -44,7 +44,7 @@ public class BumbleTab extends Activity {
 			e.printStackTrace();
 		}
         
-        superCollider.openUDP(57110);
+        superCollider.openUDP(57110); // TODO once stable, remove this if OSC is all over AIDL
         superCollider.start();
     	soundManager.initialiseSCforInput();
 
