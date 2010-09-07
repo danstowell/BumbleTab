@@ -9,7 +9,7 @@ import net.sf.supercollider.android.SCAudio;
 import net.sf.supercollider.android.ScService;
 
 public class BSoundManager {
-	public static final int bufferSize = (int) (SCAudio.sampleRateInHz * 0.1 * 64); // MAKE IT MATCH NUMBER OF NOTES
+	public static final int bufferSize = (int) (SCAudio.sampleRateInHz * 0.1 * 16); //128); // MAKE IT MATCH NUMBER OF NOTES
 	private static final String TAG = "BSoundManager";
 
 	protected SCAudio superCollider;
