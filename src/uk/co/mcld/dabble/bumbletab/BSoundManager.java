@@ -9,7 +9,7 @@ import net.sf.supercollider.android.SCAudio;
 import net.sf.supercollider.android.ScService;
 
 public class BSoundManager {
-	public static final int bufferSize = (int) (SCAudio.sampleRateInHz * 0.1 * 16); //128); // MAKE IT MATCH NUMBER OF NOTES
+	public static final int bufferSize = (int) (SCAudio.sampleRateInHz * 0.1 * 4); //16); //128); // MAKE IT MATCH NUMBER OF NOTES
 	private static final String TAG = "BSoundManager";
 
 	protected SCAudio superCollider;
@@ -59,6 +59,8 @@ public class BSoundManager {
 		if (!firstToken.equals("/done")) {
 			Log.e(TAG, "Bumble failed to receive /done for buffer alloc");
 		}
+    	superCollider.sendMessage(new OscMessage( new Object[] {
+    			"notify", 1})); // register for notifications, so we know when synths end
     	superCollider.sendMessage(new OscMessage( new Object[] {
     			"s_new","bumbletab_rec", recNode, 0, 1, "targetBus", targetBus, "inpitchBus", inpitchBus, "recBuf", recBuf}));
     }
@@ -194,5 +196,30 @@ public class BSoundManager {
 		// STEP 3 update gui
 		gtv.postInvalidate();
     }
+
+	protected void startPlayback() {
+		superCollider.sendMessage(new OscMessage( new Object[] {
+    			"s_new","bumbletab_playback", playNode, 0, 1, "recBuf", recBuf}));
+	}
+
+	protected boolean detectRecEnd() {
+		while (SCAudio.hasMessages()){
+			Log.d(TAG, "BumbleTab - there are messages");
+			OscMessage msgFromServer = SCAudio.getMessage();
+			if (msgFromServer==null) {
+				continue;
+			}
+			String firstToken = msgFromServer.get(0).toString();
+			if (firstToken.equals("/n_end")) {
+				Log.d(TAG, "BumbleTab detected /n_end");
+				//TODO: not yet checking node ID
+				return true;
+			}else{
+				Log.d(TAG, "BumbleTab detected something it would rather ignore: " + firstToken);
+				//return false;
+			}
+		}
+		return false;
+	}
     
 }

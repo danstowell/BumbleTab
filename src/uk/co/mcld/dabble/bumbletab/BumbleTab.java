@@ -2,7 +2,6 @@ package uk.co.mcld.dabble.bumbletab;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.File;
@@ -10,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Random;
 
 import net.sf.supercollider.android.OscMessage;
 import net.sf.supercollider.android.SCAudio;
@@ -21,13 +19,14 @@ public class BumbleTab extends Activity {
 	private GtrTabView gtrTabView;
 	private TabUpdateThread tabUpdateThread;
 	
-	public static final String dllDirStr = "/data/data/uk.co.mcld.dabble.bumbletab/lib"; // TODO: not very extensible, hard coded, generally sucks
+	public static final String dllDirStr = "/data/data/uk.co.mcld.dabble.bumbletab/lib"; // not very extensible, hard coded, generally sucks
 	
 	SCAudio superCollider = new SCAudio(dllDirStr);
 	protected BSoundManager soundManager = new BSoundManager(superCollider); 
 
 	public static final String[] mySynthDefs = {
 		"bumbletab_rec.scsyndef",
+		"bumbletab_playback.scsyndef",
 	};
 
 	/** Called when the activity is first created. */
@@ -63,16 +62,22 @@ public class BumbleTab extends Activity {
 
     private class TabUpdateThread extends Thread {
     	public void run(){
-    		for(int i=0; i < 10000; i++){
+    		boolean recRunning = true;
+    		while(recRunning){
     			try {
     				Thread.sleep(100L);
     			} catch (InterruptedException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			}
     			soundManager.updateFromBusses(gtrTabView);
     			
+    			// Now check messages from the server - if the rec synth has ended then we want to do the playback
+    			if(soundManager.detectRecEnd()){
+    				recRunning = false;
+    			}
     	    }
+    		// rec has stopped so launch playback
+    		soundManager.startPlayback();
     	}
     }
  
