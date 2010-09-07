@@ -55,7 +55,7 @@ public class BumbleTab extends Activity {
 		gtrTabView.backgroundPaint.setColor(getResources().getColor(android.R.color.background_light));
 		gtrTabView.rowDivisionPaint.setColor(getResources().getColor(android.R.color.background_dark));
 		gtrTabView.timeDivisionPaint.setColor(getResources().getColor(android.R.color.primary_text_light));
-		gtrTabView.usrCircPaint.setColor(getResources().getColor(android.R.color.primary_text_light));
+		gtrTabView.usrCircPaint.setColor(0x44668800);
         
 		tabUpdateThread = new TabUpdateThread();
 		tabUpdateThread.start();
@@ -63,7 +63,7 @@ public class BumbleTab extends Activity {
 
     private class TabUpdateThread extends Thread {
     	public void run(){
-    		for(int i=0; i < 100; i++){
+    		for(int i=0; i < 10000; i++){
     			try {
     				Thread.sleep(100L);
     			} catch (InterruptedException e) {
@@ -74,23 +74,8 @@ public class BumbleTab extends Activity {
     			
     	    }
     	}
-    	public void runOLD(){
-    		Random generator = new Random();
-    		for(int i=0; i < 100; i++){
-    			try {
-    				Thread.sleep(100L);
-    			} catch (InterruptedException e) {
-    				// TODO Auto-generated catch block
-    				e.printStackTrace();
-    			}
-    			
-    			gtrTabView.whichStrg = generator.nextInt(6);
-    			gtrTabView.whichFret = generator.nextInt(10);
-    			gtrTabView.postInvalidate();
-    	    }
-    	}
     }
-
+ 
     @Override
     public void onPause() {
     	super.onPause();
