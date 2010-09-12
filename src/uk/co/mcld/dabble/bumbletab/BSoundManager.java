@@ -52,8 +52,8 @@ public class BSoundManager {
 		if (!firstToken.equals("/done")) {
 			Log.e(TAG, "Bumble failed to receive /done for buffer alloc");
 		}
-    	//superCollider.sendMessage(new OscMessage( new Object[] {
-    	//		"notify", 1})); // register for notifications, so we know when synths end
+    	superCollider.sendMessage(new OscMessage( new Object[] {
+    			"notify", 1})); // register for notifications, so we know when synths end
     	
 		// start the recording synth
 		superCollider.sendMessage(new OscMessage( new Object[] {
@@ -61,7 +61,8 @@ public class BSoundManager {
     			"targetBus", targetBus, 
     			"inpitchBus", inpitchBus, 
     			"recBuf", recBuf,
-    			"whoToUnpause", playNode}));
+    			"whoToUnpause", playNode,
+    			"ampthresh", 0.01}));
     	
     	// start the playback synth...
     	superCollider.sendMessage(new OscMessage( new Object[] {
