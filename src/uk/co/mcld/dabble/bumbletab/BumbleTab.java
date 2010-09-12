@@ -44,10 +44,7 @@ public class BumbleTab extends Activity {
 			e.printStackTrace();
 		}
         
-        superCollider.openUDP(57110); // TODO once stable, remove this if OSC is all over AIDL
-        superCollider.start();
-    	soundManager.initialiseSCforInput();
-
+		(new LaunchSCWhenFilesAreReady()).start();
 
 		setContentView(R.layout.gtrtabview);
 		gtrTabView = (GtrTabView) findViewById(R.id.gtrtabview);
@@ -55,9 +52,6 @@ public class BumbleTab extends Activity {
 		gtrTabView.rowDivisionPaint.setColor(getResources().getColor(android.R.color.background_dark));
 		gtrTabView.timeDivisionPaint.setColor(getResources().getColor(android.R.color.primary_text_light));
 		gtrTabView.usrCircPaint.setColor(0x44668800);
-        
-		tabUpdateThread = new TabUpdateThread();
-		tabUpdateThread.start();
     }
 
     private class TabUpdateThread extends Thread {
@@ -70,14 +64,7 @@ public class BumbleTab extends Activity {
     				e.printStackTrace();
     			}
     			soundManager.updateFromBusses(gtrTabView);
-    			
-    			// Now check messages from the server - if the rec synth has ended then we want to do the playback
-    			if(soundManager.detectRecEnd()){
-    				recRunning = false;
-    			}
-    	    }
-    		// rec has stopped so launch playback
-    		soundManager.startPlayback();
+       	    }
     	}
     }
  
@@ -120,4 +107,57 @@ public class BumbleTab extends Activity {
 		os.close();
 	}
 
+	private class LaunchSCWhenFilesAreReady extends Thread {
+		public static final int MAX_TRIES = 500;
+		public static final long TIME_TWIXT_TRIES = 10;
+		public void run () {
+	    	try {
+
+	    		File dataDir = new File(ScService.dataDirStr);
+	    		dataDir.mkdirs(); 
+	    		for (String synthdef : mySynthDefs )
+	    			pipeFile(synthdef, ScService.dataDirStr);
+			} catch (IOException e) {
+				Log.e(TAG,"Couldn't copy required files to the external storage device.");
+				e.printStackTrace();
+			}
+			
+			try {
+				for (String ass : getAssets().list("")) Log.d("TAG",String.format("Asset: '%s'",ass));
+			} catch (IOException e) {
+				Log.e(TAG,"Couldn't even LIST assets :(");
+				e.printStackTrace();
+			}
+
+			boolean hasAllSynths = false;
+			int remainingTries = MAX_TRIES;
+    		File dataDir = new File(ScService.dataDirStr);
+
+			while ((!hasAllSynths) && remainingTries-- > 0) {
+				hasAllSynths = true;
+				for (String synth : mySynthDefs) {
+					if (!(new File(dataDir,synth).exists())) {
+						hasAllSynths = false;
+						break;
+					}
+				}
+				if (!hasAllSynths) {
+					try {
+						sleep(TIME_TWIXT_TRIES);
+					} catch (InterruptedException e) { }
+				}
+			}
+			if (!hasAllSynths) {
+				//errorMessage = "BumbleTab could not copy all of its data to this device's storage.  If you have removed your SD card, please re-insert it and try again.";
+				//setUserActivity(UserActivity.FATAL_ERROR);
+			} else {
+				superCollider.openUDP(57110); // TODO: can remove this when stable - using UDP for dev testing
+				superCollider.start();
+		    	soundManager.initialiseSCforInput();
+		        
+				tabUpdateThread = new TabUpdateThread();
+				tabUpdateThread.start();
+			}
+		}
+	}
 }

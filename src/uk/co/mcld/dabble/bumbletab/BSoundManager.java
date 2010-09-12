@@ -6,7 +6,6 @@ import android.util.Log;
 
 import net.sf.supercollider.android.OscMessage;
 import net.sf.supercollider.android.SCAudio;
-import net.sf.supercollider.android.ScService;
 
 public class BSoundManager {
 	public static final int bufferSize = (int) (SCAudio.sampleRateInHz * 0.1 * 16); //4); //16); //128); // MAKE IT MATCH NUMBER OF NOTES
@@ -27,12 +26,6 @@ public class BSoundManager {
     }
     
     protected void initialiseSCforInput() {
-    	//TODO: bus-set just for test
-    	OscMessage busSetMsg = new OscMessage( new Object[] {
-        		"c_set", targetBus, 74, inpitchBus, 77
-        	});
-    	superCollider.sendMessage( busSetMsg );
-
     	OscMessage bufferAllocMsg = new OscMessage( new Object[] {
         		"b_alloc",recBuf,bufferSize
         	});
@@ -59,15 +52,23 @@ public class BSoundManager {
 		if (!firstToken.equals("/done")) {
 			Log.e(TAG, "Bumble failed to receive /done for buffer alloc");
 		}
-    	superCollider.sendMessage(new OscMessage( new Object[] {
-    			"notify", 1})); // register for notifications, so we know when synths end
-    	superCollider.sendMessage(new OscMessage( new Object[] {
-    			"s_new","bumbletab_rec", recNode, 0, 1, "targetBus", targetBus, "inpitchBus", inpitchBus, "recBuf", recBuf}));
-
-    	//TODO TEMPORARY CODE, PLAYBACK SHOULDN'T START UNTIL REC END!
-        // but if you enable this line, you can hear what's in the buffer as the recording progresses.
     	//superCollider.sendMessage(new OscMessage( new Object[] {
-    	//		"s_new","bumbletab_playback", 2099, 0, 1, "recBuf", recBuf}));
+    	//		"notify", 1})); // register for notifications, so we know when synths end
+    	
+		// start the recording synth
+		superCollider.sendMessage(new OscMessage( new Object[] {
+    			"s_new","bumbletab_rec", recNode, 0, 1, 
+    			"targetBus", targetBus, 
+    			"inpitchBus", inpitchBus, 
+    			"recBuf", recBuf,
+    			"whoToUnpause", playNode}));
+    	
+    	// start the playback synth...
+    	superCollider.sendMessage(new OscMessage( new Object[] {
+    			"s_new","bumbletab_playback", playNode, 0, 1, "recBuf", recBuf}));
+    	// ...but immediately pause it (the rec synth will unpause it when ready)
+    	superCollider.sendMessage(new OscMessage( new Object[] {
+    			"n_run", playNode, 0 }));
 
     }
 
@@ -79,7 +80,7 @@ public class BSoundManager {
     	OscMessage busGetMsg = new OscMessage( new Object[] {
         		"c_get",targetBus
         	});
-    	Log.d(TAG,busGetMsg.toString());
+    	//Log.d(TAG,busGetMsg.toString());
     	
     	while (SCAudio.hasMessages()) SCAudio.getMessage(); // clean out mailbox
     	superCollider.sendMessage( busGetMsg );
@@ -141,7 +142,7 @@ public class BSoundManager {
     	busGetMsg = new OscMessage( new Object[] {
         		"c_get",inpitchBus
         	});
-    	Log.d(TAG,busGetMsg.toString());
+    	//Log.d(TAG,busGetMsg.toString());
     	
     	while (SCAudio.hasMessages()) SCAudio.getMessage(); // clean out mailbox
     	superCollider.sendMessage( busGetMsg );
@@ -202,30 +203,4 @@ public class BSoundManager {
 		// STEP 3 update gui
 		gtv.postInvalidate();
     }
-
-	protected void startPlayback() {
-		superCollider.sendMessage(new OscMessage( new Object[] {
-    			"s_new","bumbletab_playback", playNode, 0, 1, "recBuf", recBuf}));
-	}
-
-	protected boolean detectRecEnd() {
-		while (SCAudio.hasMessages()){
-			Log.d(TAG, "BumbleTab - there are messages");
-			OscMessage msgFromServer = SCAudio.getMessage();
-			if (msgFromServer==null) {
-				continue;
-			}
-			String firstToken = msgFromServer.get(0).toString();
-			if (firstToken.equals("/n_end")) {
-				Log.d(TAG, "BumbleTab detected /n_end");
-				//TODO: not yet checking node ID
-				return true;
-			}else{
-				Log.d(TAG, "BumbleTab detected something it would rather ignore: " + firstToken);
-				//return false;
-			}
-		}
-		return false;
-	}
-    
 }
