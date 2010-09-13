@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<uk.co.mcld.dabble.bumbletab.GtrTabView
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/gtrtabview"
-  android:layout_width="fill_parent"
-  android:layout_height="fill_parent"
->
-</uk.co.mcld.dabble.bumbletab.GtrTabView>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/gtrtabviewholder" 
+	android:layout_width="fill_parent" 
+	android:layout_height="fill_parent"
+	android:orientation="vertical">
+	<TextView android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Play
+the note indicated. When you get it right the audio is recorded and a new note will be shown.
+When you've done them all, the very notes you played
+will be played back."/>
+ 	<uk.co.mcld.dabble.bumbletab.GtrTabView
+		android:id="@+id/gtrtabview" 
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+</LinearLayout>
