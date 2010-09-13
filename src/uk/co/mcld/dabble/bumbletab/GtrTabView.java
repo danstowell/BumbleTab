@@ -8,12 +8,12 @@ import android.util.AttributeSet;
 import android.view.View;
 
 public class GtrTabView extends View {
-	private static final String TAG = "GtrTabView";
+	//private static final String TAG = "GtrTabView";
 
 	private static final int rowSize = 20;
 	private static final int rows = 6;
 	private static final int colSize = 20;
-	private static final int cols = 6;
+	//private static final int cols = 6;
 	private static final int circSize = 20;
 
 	protected int whichStrg = 3;
@@ -74,16 +74,6 @@ public class GtrTabView extends View {
 				whichFret * rowSize + circSize,
 				whichStrg * colSize + circSize
 			),rowDivisionPaint);
-
-//		int rowNum=0;
-//		for (Arrangement.Row row : arrangement.rows) drawRow(c,row,rowNum++); // crow!
-//		if (soundBeingMoved != null) 
-//			drawSound(
-//					c,
-//					soundBeingMoved,
-//					soundBeingMovedX,
-//					soundBeingMovedY);
-//		dashboard.draw(c);
 	}
 	
 	/**
