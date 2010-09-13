@@ -1,7 +1,5 @@
 package uk.co.mcld.dabble.bumbletab;
 
-import java.util.Vector;
-
 import android.util.Log;
 
 import net.sf.supercollider.android.OscMessage;
@@ -29,7 +27,7 @@ public class BSoundManager {
     	OscMessage bufferAllocMsg = new OscMessage( new Object[] {
         		"b_alloc",recBuf,bufferSize
         	});
-    	Log.d(TAG,bufferAllocMsg.toString());
+    	//Log.d(TAG,bufferAllocMsg.toString());
     	
     	while (SCAudio.hasMessages()) SCAudio.getMessage(); // clean out mailbox
     	superCollider.sendMessage( bufferAllocMsg );
@@ -106,7 +104,7 @@ public class BSoundManager {
 		}else{
 			targetNote = (int) ((Float)msgFromServer.get(2)).floatValue();
 			
-			Log.d(TAG, "Bumble RECEIVED pos from SC: " + targetNote + "; " + msgFromServer);
+			//Log.d(TAG, "Bumble RECEIVED pos from SC: " + targetNote + "; " + msgFromServer);
 			
 			// Convert midinote to guitar fret position
 			// TODO: surely can be eleganter!
@@ -168,7 +166,7 @@ public class BSoundManager {
 		}else{
 			usrNote = (int) ((Float)msgFromServer.get(2)).floatValue();
 			
-			Log.d(TAG, "Bumble RECEIVED pos from SC: " + usrNote + "; " + msgFromServer);
+			//Log.d(TAG, "Bumble RECEIVED pos from SC: " + usrNote + "; " + msgFromServer);
 			
 			// Convert midinote to guitar fret position
 			// TODO: surely can be eleganter!

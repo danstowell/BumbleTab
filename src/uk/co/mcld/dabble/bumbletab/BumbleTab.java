@@ -151,7 +151,7 @@ public class BumbleTab extends Activity {
 				//errorMessage = "BumbleTab could not copy all of its data to this device's storage.  If you have removed your SD card, please re-insert it and try again.";
 				//setUserActivity(UserActivity.FATAL_ERROR);
 			} else {
-				superCollider.openUDP(57110); // TODO: can remove this when stable - using UDP for dev testing
+				//superCollider.openUDP(57110); // TODO: can remove this when stable - using UDP for dev testing
 				superCollider.start();
 		    	soundManager.initialiseSCforInput();
 		        
